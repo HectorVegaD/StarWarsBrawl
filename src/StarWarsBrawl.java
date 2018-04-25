@@ -78,12 +78,10 @@ public class StarWarsBrawl {
 				System.out.println("Your team has been defeated! "
 						+ "The galaxy is doomed!!");
 				break;
-			}else if(gameMode == 2){
-				if(!player.get(7).getActive()){
-					System.out.println("Your AstroMech has been taken down! "
-							+ "The mission has failed! you must retreat!");
-					break;
-				}
+			}else if(gameMode == 2 && !player.get(7).getActive()){
+				System.out.println("Your AstroMech has been taken down! "
+						+ "The mission has failed! you must retreat!");
+				break;
 			}//if gamemode 2 & astromech character is dead = defeat.
 			printTeams(dark, player);//prints teams and their health
 			if(player.get(0).getActive()){//checks if user's character is alive
