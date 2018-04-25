@@ -34,47 +34,65 @@ public class StarWarsBrawl {
 	 * @param args Unused
 	 */
 	public static void main(String[] args) {
+		
+		/**
+		 * Stage 1 - Declare Teams & Necessary variables.
+		 */
 		Scanner scan = new Scanner(System.in);
-		int choice, npcTarget, gameMode, enemyChoice, maxHealth, enemyTeam, 
-		playerTeam, exitHeal;
+		int choice, npcTarget, gameMode, enemyChoice, maxHealth, enemyCount, 
+		allyCount, exitHeal;
 		boolean injuredNotDeadE; //checks for injured, but not dead enemies
 		
 		ArrayList<Entity> player = new ArrayList<Entity>(); //player's team
-		ArrayList<Entity> dark = new ArrayList<Entity>(); //enemy team
+		ArrayList<Entity> enemyTeam= new ArrayList<Entity>(); //enemy team
 		
 		Entity jedi = createJedi(scan);
 		player.add(jedi); //initialize and add player's character
 		
 		Entity sith = new Sith(SITHNAME, "Who's your father? This guy! noob.");
-		dark.add(sith); //initialize enemy leader
+		enemyTeam.add(sith); //initialize enemy leader
 		
 		printGameMode(); //game mode menu
 		gameMode = getValidMenuChoice(scan, 1, 3); //user selection
 		scan.nextLine(); //clear line
 		
+		/**
+		 * Stage 2 - Prompt for game mode, initialize teams accordingly.
+		 */
+		
 		if(gameMode == 1){
-			enemyTeam = 7;
-			playerTeam = 7;
+			enemyCount = 7;
+			allyCount = 7;
 			System.out.println("Enemy Team Sighted! Destroy Them!");
 		}else{
-			enemyTeam = 8;
-			playerTeam = 8;
+			enemyCount = 8;
+			allyCount = 8;
 			System.out.println("Break through the Shield generators, defeat "
 					+ "the enemy team, and hack the Imperial Command Computer "
 					+ "before your battle-ready Astromech dies!");
 		}
 		
-		createTeams(dark, player, gameMode); //this creates the teams
+		createTeams(enemyTeam, player, gameMode); //this creates the teams
+		
+		/**
+		 * Stage 3 - Deathmatch Game Mode Loop.
+		 */
+		
+		while(gameMode != 3){
+			if(isDefeated(enemyTeam)){
+				gameMode = 3;
+				break;
+			}else if(isDefeated(player)){
+				
+			}
+		}
 		
 		while(gameMode != 3){ //runs until user selects to exit.
-			if(gameMode == 1 && victory(dark)){ // deathmatch & enemies defeated = victory.
+			
+			if(isDefeated(enemyTeam)){ // enemies defeated = victory.
 				gameMode = 3;
 				break;
-			} 
-			if(enemyTeam == 0){ // enemies defeated = victory.
-				gameMode = 3;
-				break;
-			}else if(playerTeam == 0){ //player characters defeated = defeat.
+			}else if(allyCount == 0){ //player characters defeated = defeat.
 				System.out.println("Your team has been defeated! "
 						+ "The galaxy is doomed!!");
 				break;
@@ -83,16 +101,16 @@ public class StarWarsBrawl {
 						+ "The mission has failed! you must retreat!");
 				break;
 			}//if gamemode 2 & astromech character is dead = defeat.
-			printTeams(dark, player);//prints teams and their health
+			printTeams(enemyTeam, player);//prints teams and their health
 			if(player.get(0).getActive()){//checks if user's character is alive
 				do{
 					printTeamDeathMatch();//prints main user menu
 					System.out.println(((MedicalD)player.get(6)).getNumTask()+
 							" Heals Remaining");
-					if(dark.get(6) instanceof Shields && dark.get(6).getActive())
+					if(enemyTeam.get(6) instanceof Shields && enemyTeam.get(6).getActive())
 						System.out.println("Enemy shields are still up!");
 					if(gameMode == 2)
-						if(enemyTeam > 1)//checks if computer can be attacked
+						if(enemyCount > 1)//checks if computer can be attacked
 							System.out.println("Enemy units are still up, "
 									+ "defeat them in order to gain access to,"
 									+ " and hack or attack the computer!");
@@ -118,35 +136,35 @@ public class StarWarsBrawl {
 					case 1://user attacks
 						do{
 							//prints out the list of targets to attack
-							attackChoice(dark);
-							choice = getValidMenuChoice(scan, 1, dark.size());
+							attackChoice(enemyTeam);
+							choice = getValidMenuChoice(scan, 1, enemyTeam.size());
 							choice--;
-							if(dark.get(6) instanceof Shields && 
-									dark.get(6).getActive()){
+							if(enemyTeam.get(6) instanceof Shields && 
+									enemyTeam.get(6).getActive()){
 								System.out.println("The shield generators are"
 										+ " still active! You are forced to "
 										+ "attack the shields");
 								choice = 6;
 							}
-							if(!dark.get(choice).getActive()){
+							if(!enemyTeam.get(choice).getActive()){
 								System.out.println("This target has been "
 										+ "defeated, please select a different"
 										+ " target.");
 							}
-							if(enemyTeam > 1 && choice == 7){
+							if(enemyCount > 1 && choice == 7){
 								System.out.println("Enemy units are still "
 										+ "defending the computer! "
 										+ "Defeat them first!");
 							}
-						}while(dark.get(choice).getHp() == 0 || 
-								enemyTeam > 1 && choice == 7 );
+						}while(enemyTeam.get(choice).getHp() == 0 || 
+								enemyCount > 1 && choice == 7 );
 						//user can attack with the jedi
-						jedi.doTask(dark.get(choice));
+						jedi.doTask(enemyTeam.get(choice));
 						System.out.println(" ");
 						//lowers the counter of remaining enemies
-						if(dark.get(choice).getHp() == 0)
-							enemyTeam--;
-						if(enemyTeam == 0){
+						if(enemyTeam.get(choice).getHp() == 0)
+							enemyCount--;
+						if(enemyCount == 0){
 							System.out.println("Congratulations! The enemy "
 									+ "team has been eradicated! You are "
 									+ "successful and the galaxy is safe!");
@@ -193,98 +211,98 @@ public class StarWarsBrawl {
 			}
 			
 			for(int i = 1; i <= 5; i++){//rebels attack
-				if(enemyTeam == 0){
+				if(enemyCount == 0){
 					break;
 				}
-				if(player.get(i).getActive() && enemyTeam != 0){//checks to see there are enemies remaining and current rebel is alive
+				if(player.get(i).getActive() && enemyCount != 0){//checks to see there are enemies remaining and current rebel is alive
 					do{
-						npcTarget = (int)(Math.random()*dark.size());//put in a check to see if the shields are still active and if the rest of the enemy team is still active
+						npcTarget = (int)(Math.random()*enemyTeam.size());//put in a check to see if the shields are still active and if the rest of the enemy team is still active
 						if(gameMode == 2){
-							if(dark.get(6).getActive())
+							if(enemyTeam.get(6).getActive())
 								npcTarget = 6;
 						}
-					}while(!dark.get(npcTarget).getActive() || enemyTeam > 1 && npcTarget == 7);//unable to target 6 until others are defeated
-					player.get(i).doTask(dark.get(npcTarget));
+					}while(!enemyTeam.get(npcTarget).getActive() || enemyCount > 1 && npcTarget == 7);//unable to target 6 until others are defeated
+					player.get(i).doTask(enemyTeam.get(npcTarget));
 					System.out.println(" ");
-					if(!dark.get(npcTarget).getActive())//lowers the counter of remaining enemies
-						enemyTeam--;
-					if(enemyTeam == 0){
+					if(!enemyTeam.get(npcTarget).getActive())//lowers the counter of remaining enemies
+						enemyCount--;
+					if(enemyCount == 0){
 						System.out.println("Congratulations! The enemy team has been eradicated! You are successful and the galaxy is safe!");
 						break;
 					}
 				}
 			}
 			if(gameMode == 2){
-				if(player.get(7).getActive() && dark.get(6).getActive()){
-					player.get(7).doTask(dark.get(6));
-					if(!dark.get(6).getActive())
-						enemyTeam--;
-				}else if(player.get(7).getActive() && enemyTeam == 1){
-					player.get(7).doTask(dark.get(7));
+				if(player.get(7).getActive() && enemyTeam.get(6).getActive()){
+					player.get(7).doTask(enemyTeam.get(6));
+					if(!enemyTeam.get(6).getActive())
+						enemyCount--;
+				}else if(player.get(7).getActive() && enemyCount == 1){
+					player.get(7).doTask(enemyTeam.get(7));
 					System.out.println("Congratulations! Imperial Command is under your control and the enemies have been slain!");
 					System.out.println("You are successful and the galaxy is safe!");
-					enemyTeam--;
+					enemyCount--;
 					break;
 				}
 			}
 			
-			injuredNotDeadE = injuredEnemies(dark);//checks for injured but not dead teammates, if found it returns true
+			injuredNotDeadE = injuredEnemies(enemyTeam);//checks for injured but not dead teammates, if found it returns true
 			enemyChoice = (int)(Math.random()*10+1);//random number
-			if(!dark.get(0).getActive() && gameMode == 1)//if the sith is dead, the enemy team's only choice will be to heal
+			if(!enemyTeam.get(0).getActive() && gameMode == 1)//if the sith is dead, the enemy team's only choice will be to heal
 				enemyChoice = 4;
 			if(gameMode == 1){
-				if(enemyChoice % 4 == 0 && injuredNotDeadE && dark.get(6).getActive() && gameMode == 1 || ((MedicalD)dark.get(6)).getNumTask() == 0){
+				if(enemyChoice % 4 == 0 && injuredNotDeadE && enemyTeam.get(6).getActive() && gameMode == 1 || ((MedicalD)enemyTeam.get(6)).getNumTask() == 0){
 					//20% chance to select healing, and if an enemy is injured, and the Medical droid is still alive then the computer will heal
 					do{
 						enemyChoice = (int)(Math.random()*6);
-						if(dark.get(enemyChoice) instanceof Sith){
-							Sith downC = (Sith)dark.get(enemyChoice);
+						if(enemyTeam.get(enemyChoice) instanceof Sith){
+							Sith downC = (Sith)enemyTeam.get(enemyChoice);
 							maxHealth = downC.maxHealth();
 						}else{
-							Stormtrooper downC = (Stormtrooper)dark.get(enemyChoice);
+							Stormtrooper downC = (Stormtrooper)enemyTeam.get(enemyChoice);
 							maxHealth = downC.maxHealth();
 						}//gets the maxHealth of the chosen target to be healed.
-					}while(!dark.get(enemyChoice).getActive() || dark.get(enemyChoice).getHp() == maxHealth);
+					}while(!enemyTeam.get(enemyChoice).getActive() || enemyTeam.get(enemyChoice).getHp() == maxHealth);
 					//prevent a dead or full health target from being healed
-					dark.get(6).doTask(dark.get(enemyChoice));
+					enemyTeam.get(6).doTask(enemyTeam.get(enemyChoice));
 				}else{//if the choice to heal didnt activate, the they just attack
-					if(dark.get(0).getActive()){//checks to see if the sith lord is still alive
+					if(enemyTeam.get(0).getActive()){//checks to see if the sith lord is still alive
 						do{
 							npcTarget = (int)(Math.random()*player.size());
 						}while(!player.get(npcTarget).getActive());//it will select a valid target
-						dark.get(0).doTask(player.get(npcTarget));
+						enemyTeam.get(0).doTask(player.get(npcTarget));
 						System.out.println(" ");
 						if(!player.get(npcTarget).getActive())//lowers the counter of remaining enemies
-							playerTeam--;
-						if(playerTeam == 0){
+							allyCount--;
+						if(allyCount == 0){
 							System.out.println("The Sith Lord and the Imperial Delta Squad are Victorious!");
 						}
 					}
 				}
 			}else{
-				if(dark.get(0).getActive()){//checks to see if the sith lord is still alive
+				if(enemyTeam.get(0).getActive()){//checks to see if the sith lord is still alive
 					do{
 						npcTarget = (int)(Math.random()*player.size());
 					}while(!player.get(npcTarget).getActive());//it will select a valid target
-					dark.get(0).doTask(player.get(npcTarget));
+					enemyTeam.get(0).doTask(player.get(npcTarget));
 					System.out.println(" ");
 					if(!player.get(npcTarget).getActive())//lowers the counter of remaining enemies
-						playerTeam--;
-					if(playerTeam == 0){
+						allyCount--;
+					if(allyCount == 0){
 						System.out.println("The Sith Lord and the Imperial Delta Squad are Victorious!");
 					}
 				}
 			}
 			for(int i = 1; i <= 5; i++){//enemy team attack
-				if(dark.get(i).getActive() && playerTeam != 0){
+				if(enemyTeam.get(i).getActive() && allyCount != 0){
 					do{
 						npcTarget = (int)(Math.random()*player.size());
 					}while(!player.get(npcTarget).getActive());
-					dark.get(i).doTask(player.get(npcTarget));
+					enemyTeam.get(i).doTask(player.get(npcTarget));
 					System.out.println(" ");
 					if(!player.get(npcTarget).getActive())//lowers the counter of remaining enemies
-						playerTeam--;
-					if(playerTeam == 0){
+						allyCount--;
+					if(allyCount == 0){
 						System.out.println("The Sith Lord and the Imperial Delta Squad are Victorious!");
 						break;
 					}
@@ -388,13 +406,14 @@ public class StarWarsBrawl {
 	
 	/**
 	 * This method iterates through the enemy team ArrayList and determines
-	 * if there are any active enemy combatants. If there are, victory is set
-	 * to false and game continues. Otherwise victory is set as true, user 
+	 * if there are any active enemy combatants. If there are active enemies 
+	 * the 'victory' variable is set to false and game continues. 
+	 * Otherwise the 'victory' variable is set as true, the user 
 	 * wins, and game ends.
 	 * @param dark ArrayList containing enemy combatants.
 	 * @return True if enemies are all down. False if any enemy is still active.
 	 */
-	public static boolean victory(ArrayList<Entity> dark){
+	public static boolean isDefeated(ArrayList<Entity> dark){
 		boolean victory = true;
 		for(int i = 0; i < dark.size(); i++){
 			if(dark.get(i).getActive() == true)
