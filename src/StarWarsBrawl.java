@@ -42,12 +42,13 @@ public class StarWarsBrawl {
 		int choice, npcTarget, gameMode, enemyChoice, maxHealth, enemyCount, 
 		allyCount, exitHeal;
 		boolean injuredNotDeadE; //checks for injured, but not dead enemies
+		boolean invalidChoice;
 		
-		ArrayList<Entity> player = new ArrayList<Entity>(); //player's team
+		ArrayList<Entity> playerTeam = new ArrayList<Entity>(); //player's team
 		ArrayList<Entity> enemyTeam= new ArrayList<Entity>(); //enemy team
 		
 		Entity jedi = createJedi(scan);
-		player.add(jedi); //initialize and add player's character
+		playerTeam.add(jedi); //initialize and add player's character
 		
 		Entity sith = new Sith(SITHNAME, "Who's your father? This guy! noob.");
 		enemyTeam.add(sith); //initialize enemy leader
@@ -72,7 +73,7 @@ public class StarWarsBrawl {
 					+ "before your battle-ready Astromech dies!");
 		}
 		
-		createTeams(enemyTeam, player, gameMode); //this creates the teams
+		createTeams(enemyTeam, playerTeam, gameMode); //this creates the teams
 		
 		/**
 		 * Stage 3 - Deathmatch Game Mode Loop.
@@ -82,9 +83,105 @@ public class StarWarsBrawl {
 			if(isDefeated(enemyTeam)){
 				gameMode = 3;
 				break;
-			}else if(isDefeated(player)){
-				
+			}else if(isDefeated(playerTeam)){
+				gameMode = 3;
+				break;
 			}
+			printTeams(enemyTeam, playerTeam);//prints teams and their health
+			
+			if(playerTeam.get(0).getActive()){//checks if user's character is alive
+				do{
+					printTeamDeathMatch();//prints main user menu
+					System.out.println(((MedicalD)playerTeam.get(6)).getNumTask()+
+							" Heals Remaining");
+					do{
+						choice = getValidMenuChoice(scan, 1, 2);
+						scan.nextLine();//clear line
+						invalidChoice = false;
+						
+						//checks whether the medical droid is still alive
+						if(!playerTeam.get(6).getActive() && choice == 2){
+							System.out.println("Your Medical Droid has been "
+									+ "destroyed! You can't heal!");
+							invalidChoice = true;
+						}	
+						if(((MedicalD)playerTeam.get(6)).getNumTask() == 0){
+							System.out.println("Your Medical Droid has run out"
+									+ " of Medpacks and cannot heal!");
+							invalidChoice = true;
+						}
+					}while(invalidChoice);
+					//Repeat if the user keeps pressing heal without a droid
+					
+					
+					exitHeal = 0;
+					switch(choice){
+					case 1://user attacks
+						do{
+							//prints out the list of targets to attack
+							attackChoice(enemyTeam);
+							choice = getValidMenuChoice(scan, 1, enemyTeam.size());
+							invalidChoice = false;
+							choice--;
+							if(!enemyTeam.get(choice).getActive()){
+								System.out.println("This target has been "
+										+ "defeated, please select a different"
+										+ " target.");
+							}
+						}while(invalidChoice);
+						//user can attack with the jedi
+						jedi.doTask(enemyTeam.get(choice));
+						System.out.println(" ");
+						//lowers the counter of remaining enemies
+						if(enemyTeam.get(choice).getHp() == 0)
+							enemyCount--;
+						if(enemyCount == 0){
+							System.out.println("Congratulations! The enemy "
+									+ "team has been eradicated! You are "
+									+ "successful and the galaxy is safe!");
+						}
+						break;
+						
+					case 2://implement healing
+						do{
+							healChoice(playerTeam);
+							choice = getValidMenuChoice(scan, 1, 7);
+							if(choice == 7){
+								exitHeal = choice;
+								break;
+							}
+							choice--;
+							if(playerTeam.get(choice) instanceof Jedi){
+								Jedi downC = (Jedi)playerTeam.get(choice);
+								maxHealth = downC.maxHealth();
+							}else{
+								Rebel downC = (Rebel)playerTeam.get(choice);
+								maxHealth = downC.maxHealth();
+							}
+							//checks if the target is dead:
+							if(!playerTeam.get(choice).getActive() || 
+									playerTeam.get(choice).getHp() == maxHealth)
+								System.out.println("This target is either "
+										+ "defeated or at full health. Please "
+										+ "select another target.");
+						}while(!playerTeam.get(choice).getActive() || 
+								playerTeam.get(choice).getHp() == maxHealth);
+						//check if the computer is still active or 
+						//the rest of the team is still active
+						if(choice != 7)
+							playerTeam.get(6).doTask(playerTeam.get(choice));
+					}
+				}while(exitHeal == 7);	
+			}else{//if the user's jedi has been slain, 
+				//this will allow the user to see the outcome of the fight
+				System.out.println("Your Jedi has been defeated! But your "
+						+ "squad fights on in hopes of avenging you!");
+				System.out.println("Enter any key to continue viewing the "
+						+ "fierce battle!");
+				scan.nextLine();
+			}
+			
+			
 		}
 		
 		while(gameMode != 3){ //runs until user selects to exit.
@@ -96,16 +193,16 @@ public class StarWarsBrawl {
 				System.out.println("Your team has been defeated! "
 						+ "The galaxy is doomed!!");
 				break;
-			}else if(gameMode == 2 && !player.get(7).getActive()){
+			}else if(gameMode == 2 && !playerTeam.get(7).getActive()){
 				System.out.println("Your AstroMech has been taken down! "
 						+ "The mission has failed! you must retreat!");
 				break;
 			}//if gamemode 2 & astromech character is dead = defeat.
-			printTeams(enemyTeam, player);//prints teams and their health
-			if(player.get(0).getActive()){//checks if user's character is alive
+			printTeams(enemyTeam, playerTeam);//prints teams and their health
+			if(playerTeam.get(0).getActive()){//checks if user's character is alive
 				do{
 					printTeamDeathMatch();//prints main user menu
-					System.out.println(((MedicalD)player.get(6)).getNumTask()+
+					System.out.println(((MedicalD)playerTeam.get(6)).getNumTask()+
 							" Heals Remaining");
 					if(enemyTeam.get(6) instanceof Shields && enemyTeam.get(6).getActive())
 						System.out.println("Enemy shields are still up!");
@@ -120,15 +217,15 @@ public class StarWarsBrawl {
 						choice = getValidMenuChoice(scan, 1, 2);
 						scan.nextLine();//clear line
 						//checks whether the medical droid is still alive
-						if(!player.get(6).getActive() && choice == 2)
+						if(!playerTeam.get(6).getActive() && choice == 2)
 							System.out.println("Your Medical Droid has been "
 									+ "destroyed! You can't heal!");
-						if(((MedicalD)player.get(6)).getNumTask() == 0){
+						if(((MedicalD)playerTeam.get(6)).getNumTask() == 0){
 							System.out.println("Your Medical Droid has run out"
 									+ " of Medpacks and cannot heal!");
 						}
-					}while(!player.get(6).getActive() && choice == 2 || 
-							((MedicalD)player.get(6)).getNumTask() == 0 && 
+					}while(!playerTeam.get(6).getActive() && choice == 2 || 
+							((MedicalD)playerTeam.get(6)).getNumTask() == 0 && 
 							choice == 2);
 					//Repeat if the user keeps pressing heal without a droid
 					exitHeal = 0;
@@ -173,32 +270,32 @@ public class StarWarsBrawl {
 						
 					case 2://implement healing
 						do{
-							healChoice(player);
+							healChoice(playerTeam);
 							choice = getValidMenuChoice(scan, 1, 7);
 							if(choice == 7){
 								exitHeal = choice;
 								break;
 							}
 							choice--;
-							if(player.get(choice) instanceof Jedi){
-								Jedi downC = (Jedi)player.get(choice);
+							if(playerTeam.get(choice) instanceof Jedi){
+								Jedi downC = (Jedi)playerTeam.get(choice);
 								maxHealth = downC.maxHealth();
 							}else{
-								Rebel downC = (Rebel)player.get(choice);
+								Rebel downC = (Rebel)playerTeam.get(choice);
 								maxHealth = downC.maxHealth();
 							}
 							//checks if the target is dead:
-							if(!player.get(choice).getActive() || 
-									player.get(choice).getHp() == maxHealth)
+							if(!playerTeam.get(choice).getActive() || 
+									playerTeam.get(choice).getHp() == maxHealth)
 								System.out.println("This target is either "
 										+ "defeated or at full health. Please "
 										+ "select another target.");
-						}while(!player.get(choice).getActive() || 
-								player.get(choice).getHp() == maxHealth);
+						}while(!playerTeam.get(choice).getActive() || 
+								playerTeam.get(choice).getHp() == maxHealth);
 						//check if the computer is still active or 
 						//the rest of the team is still active
 						if(choice != 7)
-							player.get(6).doTask(player.get(choice));
+							playerTeam.get(6).doTask(playerTeam.get(choice));
 					}
 				}while(exitHeal == 7);	
 			}else{//if the user's jedi has been slain, 
@@ -214,7 +311,7 @@ public class StarWarsBrawl {
 				if(enemyCount == 0){
 					break;
 				}
-				if(player.get(i).getActive() && enemyCount != 0){//checks to see there are enemies remaining and current rebel is alive
+				if(playerTeam.get(i).getActive() && enemyCount != 0){//checks to see there are enemies remaining and current rebel is alive
 					do{
 						npcTarget = (int)(Math.random()*enemyTeam.size());//put in a check to see if the shields are still active and if the rest of the enemy team is still active
 						if(gameMode == 2){
@@ -222,7 +319,7 @@ public class StarWarsBrawl {
 								npcTarget = 6;
 						}
 					}while(!enemyTeam.get(npcTarget).getActive() || enemyCount > 1 && npcTarget == 7);//unable to target 6 until others are defeated
-					player.get(i).doTask(enemyTeam.get(npcTarget));
+					playerTeam.get(i).doTask(enemyTeam.get(npcTarget));
 					System.out.println(" ");
 					if(!enemyTeam.get(npcTarget).getActive())//lowers the counter of remaining enemies
 						enemyCount--;
@@ -233,12 +330,12 @@ public class StarWarsBrawl {
 				}
 			}
 			if(gameMode == 2){
-				if(player.get(7).getActive() && enemyTeam.get(6).getActive()){
-					player.get(7).doTask(enemyTeam.get(6));
+				if(playerTeam.get(7).getActive() && enemyTeam.get(6).getActive()){
+					playerTeam.get(7).doTask(enemyTeam.get(6));
 					if(!enemyTeam.get(6).getActive())
 						enemyCount--;
-				}else if(player.get(7).getActive() && enemyCount == 1){
-					player.get(7).doTask(enemyTeam.get(7));
+				}else if(playerTeam.get(7).getActive() && enemyCount == 1){
+					playerTeam.get(7).doTask(enemyTeam.get(7));
 					System.out.println("Congratulations! Imperial Command is under your control and the enemies have been slain!");
 					System.out.println("You are successful and the galaxy is safe!");
 					enemyCount--;
@@ -268,11 +365,11 @@ public class StarWarsBrawl {
 				}else{//if the choice to heal didnt activate, the they just attack
 					if(enemyTeam.get(0).getActive()){//checks to see if the sith lord is still alive
 						do{
-							npcTarget = (int)(Math.random()*player.size());
-						}while(!player.get(npcTarget).getActive());//it will select a valid target
-						enemyTeam.get(0).doTask(player.get(npcTarget));
+							npcTarget = (int)(Math.random()*playerTeam.size());
+						}while(!playerTeam.get(npcTarget).getActive());//it will select a valid target
+						enemyTeam.get(0).doTask(playerTeam.get(npcTarget));
 						System.out.println(" ");
-						if(!player.get(npcTarget).getActive())//lowers the counter of remaining enemies
+						if(!playerTeam.get(npcTarget).getActive())//lowers the counter of remaining enemies
 							allyCount--;
 						if(allyCount == 0){
 							System.out.println("The Sith Lord and the Imperial Delta Squad are Victorious!");
@@ -282,11 +379,11 @@ public class StarWarsBrawl {
 			}else{
 				if(enemyTeam.get(0).getActive()){//checks to see if the sith lord is still alive
 					do{
-						npcTarget = (int)(Math.random()*player.size());
-					}while(!player.get(npcTarget).getActive());//it will select a valid target
-					enemyTeam.get(0).doTask(player.get(npcTarget));
+						npcTarget = (int)(Math.random()*playerTeam.size());
+					}while(!playerTeam.get(npcTarget).getActive());//it will select a valid target
+					enemyTeam.get(0).doTask(playerTeam.get(npcTarget));
 					System.out.println(" ");
-					if(!player.get(npcTarget).getActive())//lowers the counter of remaining enemies
+					if(!playerTeam.get(npcTarget).getActive())//lowers the counter of remaining enemies
 						allyCount--;
 					if(allyCount == 0){
 						System.out.println("The Sith Lord and the Imperial Delta Squad are Victorious!");
@@ -296,11 +393,11 @@ public class StarWarsBrawl {
 			for(int i = 1; i <= 5; i++){//enemy team attack
 				if(enemyTeam.get(i).getActive() && allyCount != 0){
 					do{
-						npcTarget = (int)(Math.random()*player.size());
-					}while(!player.get(npcTarget).getActive());
-					enemyTeam.get(i).doTask(player.get(npcTarget));
+						npcTarget = (int)(Math.random()*playerTeam.size());
+					}while(!playerTeam.get(npcTarget).getActive());
+					enemyTeam.get(i).doTask(playerTeam.get(npcTarget));
 					System.out.println(" ");
-					if(!player.get(npcTarget).getActive())//lowers the counter of remaining enemies
+					if(!playerTeam.get(npcTarget).getActive())//lowers the counter of remaining enemies
 						allyCount--;
 					if(allyCount == 0){
 						System.out.println("The Sith Lord and the Imperial Delta Squad are Victorious!");
