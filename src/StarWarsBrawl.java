@@ -82,17 +82,24 @@ public class StarWarsBrawl {
 		while(gameMode != 3){
 			if(isDefeated(enemyTeam)){
 				gameMode = 3;
+				System.out.println("Congratulations! The enemy "
+						+ "team has been eradicated! You are "
+						+ "successful and the galaxy is safe!");
 				break;
 			}else if(isDefeated(playerTeam)){
 				gameMode = 3;
+				System.out.println("Your team has been defeated! "
+						+ "The galaxy is doomed!!");
 				break;
 			}
 			printTeams(enemyTeam, playerTeam);//prints teams and their health
 			
-			if(playerTeam.get(0).getActive()){//checks if user's character is alive
+			Entity playerCharacter = playerTeam.get(0);
+			MedicalD medicalDroid = (MedicalD)playerTeam.get(6);
+			if(playerCharacter.getActive()){//checks if user's character is alive
 				do{
 					printTeamDeathMatch();//prints main user menu
-					System.out.println(((MedicalD)playerTeam.get(6)).getNumTask()+
+					System.out.println(medicalDroid.getNumTask()+
 							" Heals Remaining");
 					do{
 						choice = getValidMenuChoice(scan, 1, 2);
@@ -100,12 +107,12 @@ public class StarWarsBrawl {
 						invalidChoice = false;
 						
 						//checks whether the medical droid is still alive
-						if(!playerTeam.get(6).getActive() && choice == 2){
+						if(!medicalDroid.getActive() && choice == 2){
 							System.out.println("Your Medical Droid has been "
 									+ "destroyed! You can't heal!");
 							invalidChoice = true;
 						}	
-						if(((MedicalD)playerTeam.get(6)).getNumTask() == 0){
+						if(medicalDroid.getNumTask() == 0){
 							System.out.println("Your Medical Droid has run out"
 									+ " of Medpacks and cannot heal!");
 							invalidChoice = true;
@@ -114,12 +121,12 @@ public class StarWarsBrawl {
 					//Repeat if the user keeps pressing heal without a droid
 					
 					
-					exitHeal = 0;
+
 					switch(choice){
 					case 1://user attacks
 						do{
 							//prints out the list of targets to attack
-							attackChoice(enemyTeam);
+							printEnemyTargets(enemyTeam);
 							choice = getValidMenuChoice(scan, 1, enemyTeam.size());
 							invalidChoice = false;
 							choice--;
@@ -129,17 +136,13 @@ public class StarWarsBrawl {
 										+ " target.");
 							}
 						}while(invalidChoice);
+						
 						//user can attack with the jedi
 						jedi.doTask(enemyTeam.get(choice));
 						System.out.println(" ");
 						//lowers the counter of remaining enemies
 						if(enemyTeam.get(choice).getHp() == 0)
 							enemyCount--;
-						if(enemyCount == 0){
-							System.out.println("Congratulations! The enemy "
-									+ "team has been eradicated! You are "
-									+ "successful and the galaxy is safe!");
-						}
 						break;
 						
 					case 2://implement healing
@@ -147,10 +150,10 @@ public class StarWarsBrawl {
 							healChoice(playerTeam);
 							choice = getValidMenuChoice(scan, 1, 7);
 							if(choice == 7){
-								exitHeal = choice;
 								break;
 							}
 							choice--;
+							// LEFT OFF HERE. DOWNCASTING TO ACCESS MAX HEALTH OF TARGET. EASIER WAY!!
 							if(playerTeam.get(choice) instanceof Jedi){
 								Jedi downC = (Jedi)playerTeam.get(choice);
 								maxHealth = downC.maxHealth();
@@ -171,7 +174,7 @@ public class StarWarsBrawl {
 						if(choice != 7)
 							playerTeam.get(6).doTask(playerTeam.get(choice));
 					}
-				}while(exitHeal == 7);	
+				}while(choice == 7);	
 			}else{//if the user's jedi has been slain, 
 				//this will allow the user to see the outcome of the fight
 				System.out.println("Your Jedi has been defeated! But your "
@@ -233,7 +236,7 @@ public class StarWarsBrawl {
 					case 1://user attacks
 						do{
 							//prints out the list of targets to attack
-							attackChoice(enemyTeam);
+							printEnemyTargets(enemyTeam);
 							choice = getValidMenuChoice(scan, 1, enemyTeam.size());
 							choice--;
 							if(enemyTeam.get(6) instanceof Shields && 
@@ -458,7 +461,7 @@ public class StarWarsBrawl {
 	 * This will print out the list of enemy names for the user to select one to attack
 	 * @param dark - the Arraylist containing the enemy entities
 	 */
-	public static void attackChoice(ArrayList<Entity> dark){
+	public static void printEnemyTargets(ArrayList<Entity> dark){
 		System.out.println("Choose someone to attack:");
 		for(int i = 1; i <= dark.size(); i++){
 			System.out.println(i+". "+dark.get(i-1).getName()+"   "+dark.get(i-1).getHp());
