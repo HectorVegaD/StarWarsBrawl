@@ -51,6 +51,7 @@ public class StarWarsBrawl {
 		printGameMode(); //game mode menu
 		gameMode = getValidMenuChoice(scan, 1, 3); //user selection
 		scan.nextLine(); //clear line
+		
 		if(gameMode == 1){
 			enemyTeam = 7;
 			playerTeam = 7;
@@ -66,14 +67,14 @@ public class StarWarsBrawl {
 		createTeams(dark, player, gameMode); //this creates the teams
 		
 		while(gameMode != 3){ //runs until user selects to exit.
-			if(gameMode == 1 && victory(dark)){
+			if(gameMode == 1 && victory(dark)){ // deathmatch & enemies defeated = victory.
 				gameMode = 3;
 				break;
-			} //check if all enemies are down.
-			if(enemyTeam == 0){
+			} 
+			if(enemyTeam == 0){ // enemies defeated = victory.
 				gameMode = 3;
 				break;
-			}else if(playerTeam == 0){
+			}else if(playerTeam == 0){ //player characters defeated = defeat.
 				System.out.println("Your team has been defeated! "
 						+ "The galaxy is doomed!!");
 				break;
@@ -83,7 +84,7 @@ public class StarWarsBrawl {
 							+ "The mission has failed! you must retreat!");
 					break;
 				}
-			}
+			}//if gamemode 2 & astromech character is dead = defeat.
 			printTeams(dark, player);//prints teams and their health
 			if(player.get(0).getActive()){//checks if user's character is alive
 				do{
