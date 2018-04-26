@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class StarWarsBrawl {
 	private static String SITHNAME = "Sith Lord Vader";//name of enemy leader
-	//[doesn't need to be global - fix]
+	//doesn't need to be global - [fix]
 
 	/**
 	 * Main method containing the mode selection and core game/program loop.
@@ -77,6 +77,15 @@ public class StarWarsBrawl {
 		
 		/**
 		 * Stage 3 - Deathmatch Game Mode Loop.
+		 * Step 1: Determine if game is over with win / loss conditions.
+		 * Step 2: Determine if user's character is alive
+		 * 		2a: If user's character is alive - Prompt user to heal or attack.
+		 * 		2b: If user chooses to heal:
+		 * 			- Check if medical droid is active. Invalidate choice if droid is inactive.
+		 * 			- Validate that user's heal target is injured and not dead.
+		 * 		2c: If user chooses to attack:
+		 * 			- Write comments. [fix]
+		 * 			- 
 		 */
 		
 		while(gameMode != 3){
@@ -200,6 +209,44 @@ public class StarWarsBrawl {
 					enemyCount--;		
 			}
 			
+			
+			/**
+			 * Enemy's turn: 
+			 */
+			injuredNotDeadE = injuredEnemies(enemyTeam);//checks for injured but not dead teammates, if found it returns true
+			enemyChoice = (int)(Math.random()*10+1);//random number
+			if(!enemyTeam.get(0).getActive() && gameMode == 1)//if the sith is dead, the enemy team's only choice will be to heal
+				enemyChoice = 4;
+			
+			
+			if(enemyChoice % 4 == 0 && injuredNotDeadE && enemyTeam.get(6).getActive() && gameMode == 1 || ((MedicalD)enemyTeam.get(6)).getNumTask() == 0){
+				//20% chance to select healing, and if an enemy is injured, and the Medical droid is still alive then the computer will heal
+				do{
+					enemyChoice = (int)(Math.random()*6);
+					if(enemyTeam.get(enemyChoice) instanceof Sith){
+						Sith downC = (Sith)enemyTeam.get(enemyChoice);
+						maxHealth = downC.maxHealth();
+					}else{
+						Stormtrooper downC = (Stormtrooper)enemyTeam.get(enemyChoice);
+						maxHealth = downC.maxHealth();
+					}//gets the maxHealth of the chosen target to be healed.
+				}while(!enemyTeam.get(enemyChoice).getActive() || enemyTeam.get(enemyChoice).getHp() == maxHealth);
+				//prevent a dead or full health target from being healed
+				enemyTeam.get(6).doTask(enemyTeam.get(enemyChoice));
+			}else{//if the choice to heal didnt activate, the they just attack
+				if(enemyTeam.get(0).getActive()){//checks to see if the sith lord is still alive
+					do{
+						npcTarget = (int)(Math.random()*playerTeam.size());
+					}while(!playerTeam.get(npcTarget).getActive());//it will select a valid target
+					enemyTeam.get(0).doTask(playerTeam.get(npcTarget));
+					System.out.println(" ");
+					if(!playerTeam.get(npcTarget).getActive())//lowers the counter of remaining enemies
+						allyCount--;
+					if(allyCount == 0){
+						System.out.println("The Sith Lord and the Imperial Delta Squad are Victorious!");
+					}
+				}
+			}
 			
 			
 		}
