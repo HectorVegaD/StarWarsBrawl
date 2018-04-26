@@ -149,30 +149,23 @@ public class StarWarsBrawl {
 						do{
 							healChoice(playerTeam);
 							choice = getValidMenuChoice(scan, 1, 7);
-							if(choice == 7){
+							if(choice == 7)
 								break;
-							}
 							choice--;
-							// LEFT OFF HERE. DOWNCASTING TO ACCESS MAX HEALTH OF TARGET. EASIER WAY!!
-							if(playerTeam.get(choice) instanceof Jedi){
-								Jedi downC = (Jedi)playerTeam.get(choice);
-								maxHealth = downC.maxHealth();
-							}else{
-								Rebel downC = (Rebel)playerTeam.get(choice);
-								maxHealth = downC.maxHealth();
-							}
+							// Determine if user is healing a Jedi or regular trooper. Acquire their maximum health.
+							if(choice == 0)
+								maxHealth = 100;
+							else
+								maxHealth = 50;
+							
 							//checks if the target is dead:
-							if(!playerTeam.get(choice).getActive() || 
-									playerTeam.get(choice).getHp() == maxHealth)
-								System.out.println("This target is either "
-										+ "defeated or at full health. Please "
-										+ "select another target.");
+							if(!playerTeam.get(choice).getActive()) 
+								System.out.println("Your target is defeated. Please re-select target."); 
+							else if(playerTeam.get(choice).getHp() == maxHealth)
+								System.out.println("Your target is at full health. Please re-select target.");
+						
 						}while(!playerTeam.get(choice).getActive() || 
 								playerTeam.get(choice).getHp() == maxHealth);
-						//check if the computer is still active or 
-						//the rest of the team is still active
-						if(choice != 7)
-							playerTeam.get(6).doTask(playerTeam.get(choice));
 					}
 				}while(choice == 7);	
 			}else{//if the user's jedi has been slain, 
@@ -183,6 +176,30 @@ public class StarWarsBrawl {
 						+ "fierce battle!");
 				scan.nextLine();
 			}
+			
+			/**
+			 * Rebel Attack Process:
+			 * 1. Iterate and select current rebel and verify they are active.
+			 * 2. Randomly select enemy target and verify enemy is active.
+			 * 3. Call doTask(), executing the attack. 
+			 * 4. If enemy is defeated, update enemy team count. 
+			 */
+			for(int i = 1; i <= 5; i++){
+				if(enemyCount == 0)
+					break; //exit if no enemies remain
+				Entity rebelAlly = playerTeam.get(i); 
+				if(!rebelAlly.getActive())
+					continue;
+		
+				do{
+					npcTarget = (int)(Math.random()*enemyTeam.size());
+				}while(!enemyTeam.get(npcTarget).getActive());
+				rebelAlly.doTask(enemyTeam.get(npcTarget)); //attack / doTask()
+				System.out.println(" ");
+				if(!enemyTeam.get(npcTarget).getActive())//lowers the counter of remaining enemies
+					enemyCount--;		
+			}
+			
 			
 			
 		}
