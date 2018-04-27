@@ -215,26 +215,35 @@ public class StarWarsBrawl {
 			 */
 			injuredNotDeadE = injuredEnemies(enemyTeam);//checks for injured but not dead teammates, if found it returns true
 			enemyChoice = (int)(Math.random()*10+1);//random number
-			if(!enemyTeam.get(0).getActive() && gameMode == 1)//if the sith is dead, the enemy team's only choice will be to heal
+			if(!enemyTeam.get(0).getActive())//if the sith is dead, the enemy team's only choice will be to heal
 				enemyChoice = 4;
 			
-			
-			if(enemyChoice % 4 == 0 && injuredNotDeadE && enemyTeam.get(6).getActive() && gameMode == 1 || ((MedicalD)enemyTeam.get(6)).getNumTask() == 0){
-				//20% chance to select healing, and if an enemy is injured, and the Medical droid is still alive then the computer will heal
+			/**
+			 * 20% chance for pc to heal ally. To heal, must verify the following:
+			 * - Chosen ally is injured & not dead
+			 * - Medical Droid is active / not dead
+			 * - Medical Droid has heals remaining (heal counter != 0)
+			 */
+			if(enemyChoice % 4 == 0 && injuredNotDeadE && enemyTeam.get(6).getActive() && ((MedicalD)enemyTeam.get(6)).getNumTask() != 0){
+				boolean targetAllive, targetHealthy;
 				do{
+					//pc / enemy selects random ally to heal.
 					enemyChoice = (int)(Math.random()*6);
-					if(enemyTeam.get(enemyChoice) instanceof Sith){
-						Sith downC = (Sith)enemyTeam.get(enemyChoice);
-						maxHealth = downC.maxHealth();
-					}else{
-						Stormtrooper downC = (Stormtrooper)enemyTeam.get(enemyChoice);
-						maxHealth = downC.maxHealth();
-					}//gets the maxHealth of the chosen target to be healed.
-				}while(!enemyTeam.get(enemyChoice).getActive() || enemyTeam.get(enemyChoice).getHp() == maxHealth);
-				//prevent a dead or full health target from being healed
+					
+					// Determine if user is healing a Jedi or regular trooper. Acquire their maximum health.
+					if(enemyChoice == 0)
+						maxHealth = 100;
+					else
+						maxHealth = 50;
+					
+					// determine if pc choice can be healed.
+					targetAllive = enemyTeam.get(enemyChoice).getActive();
+					targetHealthy = enemyTeam.get(enemyChoice).getHp() == maxHealth;
+				}while(!targetAllive || targetHealthy);//repeat if an invalid target is chosen.
+				
 				enemyTeam.get(6).doTask(enemyTeam.get(enemyChoice));
 			}else{//if the choice to heal didnt activate, the they just attack
-				if(enemyTeam.get(0).getActive()){//checks to see if the sith lord is still alive
+				if(enemyTeam.get(0).getActive()){//[fix] modularize this and make this a return condition.
 					do{
 						npcTarget = (int)(Math.random()*playerTeam.size());
 					}while(!playerTeam.get(npcTarget).getActive());//it will select a valid target
@@ -247,6 +256,11 @@ public class StarWarsBrawl {
 					}
 				}
 			}
+			
+			/**
+			 * Next stage will be to enemy team members attack.
+			 * Same process as the rebel's attack, but for enemies.
+			 */
 			
 			
 		}
