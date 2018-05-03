@@ -1,3 +1,4 @@
+package StarWarsBrawl;
 /**
  * @author hectordelavega
  *This class will define the subclass of a Sith. It will store the doTask() method specific to the sith

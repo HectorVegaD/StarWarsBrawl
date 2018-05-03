@@ -1,3 +1,4 @@
+package StarWarsBrawl;
 import java.util.Scanner;
 
 /**

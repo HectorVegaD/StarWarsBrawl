@@ -1,3 +1,4 @@
+package StarWarsBrawl;
 /*
  * Hector De La Vega
  * CECS 277 
@@ -44,15 +45,6 @@ public class StarWarsBrawl {
 		boolean injuredNotDeadE; //checks for injured, but not dead enemies
 		boolean invalidChoice;
 		
-		ArrayList<Entity> playerTeam = new ArrayList<Entity>(); //player's team
-		ArrayList<Entity> enemyTeam= new ArrayList<Entity>(); //enemy team
-		
-		Entity jedi = createJedi(scan);
-		playerTeam.add(jedi); //initialize and add player's character
-		
-		Entity sith = new Sith(SITHNAME, "Who's your father? This guy! noob.");
-		enemyTeam.add(sith); //initialize enemy leader
-		
 		printGameMode(); //game mode menu
 		gameMode = getValidMenuChoice(scan, 1, 3); //user selection
 		scan.nextLine(); //clear line
@@ -72,8 +64,11 @@ public class StarWarsBrawl {
 					+ "the enemy team, and hack the Imperial Command Computer "
 					+ "before your battle-ready Astromech dies!");
 		}
+		Entity[] playerTeam;
+		Entity[] enemyTeam; //enemy team
 		
-		createTeams(enemyTeam, playerTeam, gameMode); //this creates the teams
+		Teams.createPlayerTeam(playerTeam); //this creates the teams
+		Teams.createEnemies(enemyTeam);
 		
 		/**
 		 * Stage 3 - Deathmatch Game Mode Loop.
@@ -89,13 +84,13 @@ public class StarWarsBrawl {
 		 */
 		
 		while(gameMode != 3){
-			if(isDefeated(enemyTeam)){
+			if(Teams.isDefeated(enemyTeam)){
 				gameMode = 3;
 				System.out.println("Congratulations! The enemy "
 						+ "team has been eradicated! You are "
 						+ "successful and the galaxy is safe!");
 				break;
-			}else if(isDefeated(playerTeam)){
+			}else if(Teams.isDefeated(playerTeam)){
 				gameMode = 3;
 				System.out.println("Your team has been defeated! "
 						+ "The galaxy is doomed!!");
@@ -103,8 +98,8 @@ public class StarWarsBrawl {
 			}
 			printTeams(enemyTeam, playerTeam);//prints teams and their health
 			
-			Entity playerCharacter = playerTeam.get(0);
-			MedicalD medicalDroid = (MedicalD)playerTeam.get(6);
+			Entity playerCharacter = playerTeam[0];
+			MedicalD medicalDroid = (MedicalD)playerTeam[6];
 			if(playerCharacter.getActive()){//checks if user's character is alive
 				do{
 					printTeamDeathMatch();//prints main user menu
@@ -303,24 +298,24 @@ public class StarWarsBrawl {
 	/**
 	 * This method will print out both of the teams, labeling the Good Guys and Bad guys,
 	 * as well as displaying the individual names and health points
-	 * @param dark - ArrayList of enemies to be displayed
-	 * @param player - ArrayList of Good Guys to be displayed
+	 * @param enemyTeam - ArrayList of enemies to be displayed
+	 * @param playerTeam - ArrayList of Good Guys to be displayed
 	 */
-	public static void printTeams(ArrayList<Entity> dark, ArrayList<Entity> player){
+	public static void printTeams(Entity[] enemyTeam, Entity[] playerTeam){
 		System.out.println("Good Guys:");
 		System.out.println("---------");
 		int health;
 		String name;
-		for(int i = 0; i < player.size(); i++){
-			health = player.get(i).getHp();
-			name = player.get(i).getName();
+		for(int i = 0; i < playerTeam.length; i++){
+			health = playerTeam[i].getHp();
+			name = playerTeam[i].getName();
 			System.out.printf("%s%5d \n", name, health);
 		}
 		System.out.println(" ");
 		System.out.println("Bad Guys:");
 		System.out.println("---------");
-		for(int i = 0; i < dark.size(); i++){
-			System.out.println(dark.get(i).getName() + " " + dark.get(i).getHp());
+		for(int i = 0; i < enemyTeam.length; i++){
+			System.out.println(enemyTeam[i].getName() + " " + enemyTeam[i].getHp());
 		}
 		System.out.println(" ");
 	}
@@ -370,83 +365,6 @@ public class StarWarsBrawl {
 				injuredNotDead = true;
 		}
 		return injuredNotDead;
-	}
-	
-	/**
-	 * This method iterates through the enemy team ArrayList and determines
-	 * if there are any active enemy combatants. If there are active enemies 
-	 * the 'victory' variable is set to false and game continues. 
-	 * Otherwise the 'victory' variable is set as true, the user 
-	 * wins, and game ends.
-	 * @param dark ArrayList containing enemy combatants.
-	 * @return True if enemies are all down. False if any enemy is still active.
-	 */
-	public static boolean isDefeated(ArrayList<Entity> dark){
-		boolean victory = true;
-		for(int i = 0; i < dark.size(); i++){
-			if(dark.get(i).getActive() == true)
-				victory = false;
-		}
-		return victory;
-	}
-	/**
-	 * This method will print out the player's team and the Enemy team. The names and catch phrases
-	 * have already been pre-defined and can only be changed by changing the code itself. Adds the created
-	 * Entities to the Entity Arraylist of the two teams. It uses a pass by reference to change original arraylists
-	 * @param dark - enemy team arraylist
-	 * @param player - player team arraylist
-	 */
-	public static void createTeams(ArrayList<Entity> dark, ArrayList<Entity> player, int gMode){
-		Entity Rebel = new Rebel("H.Solo", "Ooo yea, I always shoot first");
-		Entity Rebel1 = new Rebel("Ackbar", "ITS A TRAP... for you! BOOM!");
-		Entity Rebel2 = new Rebel("Chewie", "Uuuuurawwwrr Aaaargh Ahhhrrrr!");
-		Entity Rebel3 = new Rebel("Ahsoka", "I can handle anything!");
-		Entity Rebel4 = new Rebel("P Leia", "I'm stronger than i Look");
-		Entity MedicalD5 = new MedicalD("21B-MD");
-		//I know ahsoka is not a rebel soldier but still x)
-		player.add(Rebel);
-		player.add(Rebel1);
-		player.add(Rebel2);
-		player.add(Rebel3);
-		player.add(Rebel4);
-		player.add(MedicalD5);
-		Entity Trooper = new Stormtrooper("Delta 38-Boss", "Delta Squad is on the job!");
-		Entity Trooper1 = new Stormtrooper("Delta 62-Scorch", "Hehehe, that blew up real good!");
-		Entity Trooper2 = new Stormtrooper("Delta 07-Sev", "Eliminating target");
-		Entity Trooper3 = new Stormtrooper("Delta 40-Fixer", "Watch the Master at work");
-		Entity Trooper4 = new Stormtrooper("Boba Fett", "I'm on the hunt");
-		dark.add(Trooper);
-		dark.add(Trooper1);
-		dark.add(Trooper2);
-		dark.add(Trooper3);
-		dark.add(Trooper4);
-		if(gMode == 2){//if game mode is 2, then add the extra team members required
-			Entity Astro = new AstroMech("T3-M4 A");
-			Entity Shields = new Shields();
-			Entity Computer = new Computer();
-			player.add(Astro);
-			dark.add(Shields);
-			dark.add(Computer);
-		}else{
-			Entity Medical5D = new MedicalD("66A-Imperial MD");
-			dark.add(Medical5D);
-		}
-	}
-	
-	/**
-	 * This method is used to initialize the user's primary character. This
-	 * character will have its name and crystal color defined by the user.
-	 * @param scan Scanner used to take user input.
-	 * @return The user's initialized character.
-	 */
-	public static Entity createJedi(Scanner scan){
-		String jediName, colorCrystal;//define user created character.
-		System.out.println("What is the name of your legendary Jedi.");
-		jediName = scan.nextLine();
-		System.out.println("What is the color of your lightsaber crystal?");
-		colorCrystal = scan.nextLine();
-		String catchPhrase = "I go hard, I GO LUDICROUS SPEED!.";
-		return new Jedi(jediName, catchPhrase, colorCrystal, "Lightsaber");
 	}
 	
 	/**
