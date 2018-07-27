@@ -131,10 +131,10 @@ public class StarWarsBrawl {
 						do{
 							//prints out the list of targets to attack
 							printEnemyTargets(enemyTeam);
-							choice = getValidMenuChoice(scan, 1, enemyTeam.size());
+							choice = getValidMenuChoice(scan, 1, enemyTeam.length);
 							invalidChoice = false;
 							choice--;
-							if(!enemyTeam.get(choice).getActive()){
+							if(!enemyTeam[choice].getActive()){
 								System.out.println("This target has been "
 										+ "defeated, please select a different"
 										+ " target.");
@@ -142,10 +142,10 @@ public class StarWarsBrawl {
 						}while(invalidChoice);
 						
 						//user can attack with the jedi
-						jedi.doTask(enemyTeam.get(choice));
+						playerCharacter.doTask(enemyTeam[choice]);
 						System.out.println(" ");
 						//lowers the counter of remaining enemies
-						if(enemyTeam.get(choice).getHp() == 0)
+						if(enemyTeam[choice].getHp() == 0)
 							enemyCount--;
 						break;
 						
@@ -163,13 +163,13 @@ public class StarWarsBrawl {
 								maxHealth = 50;
 							
 							//checks if the target is dead:
-							if(!playerTeam.get(choice).getActive()) 
+							if(!playerTeam[choice].getActive()) 
 								System.out.println("Your target is defeated. Please re-select target."); 
-							else if(playerTeam.get(choice).getHp() == maxHealth)
+							else if(playerTeam[choice].getHp() == maxHealth)
 								System.out.println("Your target is at full health. Please re-select target.");
 						
-						}while(!playerTeam.get(choice).getActive() || 
-								playerTeam.get(choice).getHp() == maxHealth);
+						}while(!playerTeam[choice].getActive() || 
+								playerTeam[choice].getHp() == maxHealth);
 					}
 				}while(choice == 7);	
 			}else{//if the user's jedi has been slain, 
@@ -191,16 +191,15 @@ public class StarWarsBrawl {
 			for(int i = 1; i <= 5; i++){
 				if(enemyCount == 0)
 					break; //exit if no enemies remain
-				Entity rebelAlly = playerTeam.get(i); 
+				Entity rebelAlly = playerTeam[i]; 
 				if(!rebelAlly.getActive())
 					continue;
-		
 				do{
-					npcTarget = (int)(Math.random()*enemyTeam.size());
-				}while(!enemyTeam.get(npcTarget).getActive());
-				rebelAlly.doTask(enemyTeam.get(npcTarget)); //attack / doTask()
+					npcTarget = (int)(Math.random()*enemyTeam.length);
+				}while(!enemyTeam[npcTarget].getActive());
+				rebelAlly.doTask(enemyTeam[npcTarget]); //attack / doTask()
 				System.out.println(" ");
-				if(!enemyTeam.get(npcTarget).getActive())//lowers the counter of remaining enemies
+				if(!enemyTeam[npcTarget].getActive())//lowers the counter of remaining enemies
 					enemyCount--;		
 			}
 			
@@ -208,7 +207,7 @@ public class StarWarsBrawl {
 			/**
 			 * Enemy's turn: 
 			 */
-			injuredNotDeadE = injuredEnemies(enemyTeam);//checks for injured but not dead teammates, if found it returns true
+			injuredNotDeadE = Teams.injuredEnemies(enemyTeam);//checks for injured but not dead teammates, if found it returns true
 			enemyChoice = (int)(Math.random()*10+1);//random number
 			if(!enemyTeam.get(0).getActive())//if the sith is dead, the enemy team's only choice will be to heal
 				enemyChoice = 4;
@@ -324,10 +323,10 @@ public class StarWarsBrawl {
 	 * This will print out the list of enemy names for the user to select one to attack
 	 * @param dark - the Arraylist containing the enemy entities
 	 */
-	public static void printEnemyTargets(ArrayList<Entity> dark){
+	public static void printEnemyTargets(Entity[] dark){
 		System.out.println("Choose someone to attack:");
-		for(int i = 1; i <= dark.size(); i++){
-			System.out.println(i+". "+dark.get(i-1).getName()+"   "+dark.get(i-1).getHp());
+		for(int i = 1; i <= dark.length; i++){
+			System.out.println(i+". "+dark[i-1].getName()+"   "+dark[i-1].getHp());
 		}
 		System.out.println(" ");
 	}
@@ -336,36 +335,14 @@ public class StarWarsBrawl {
 	 * This will display all team members for the user to select who to heal
 	 * @param player - the ArrayList containing the user's team
 	 */
-	public static void healChoice(ArrayList<Entity> player){
+	public static void healChoice(Entity[] player){
 		System.out.println("Choose who you want to heal:");
 		for(int i = 1; i <= 6; i++){
-			System.out.println(i+". "+player.get(i-1).getName()+"   "+player.get(i-1).getHp());
+			System.out.println(i+". "+player[i-1].getName()+"   "+player[i-1].getHp());
 		}
 		System.out.println("7. Return to main action menu\n");
 	}
-	
-	/**
-	 * This method will check to see if there is at least one person on the enemy team that is healable and that
-	 * is injured, but no dead.
-	 * @param dark - enemy team
-	 * @return true if there is someone that is injured but not dead, false if otherwise
-	 */
-	public static boolean injuredEnemies(ArrayList<Entity> dark){
-		int maxHealth;
-		boolean injuredNotDead = false;
-		for(int i = 0; i <= 5; i++){
-			if(dark.get(i) instanceof Sith){
-				Sith downC = (Sith)dark.get(i);
-				maxHealth = downC.maxHealth();
-			}else{
-				Stormtrooper downC = (Stormtrooper)dark.get(i);
-				maxHealth = downC.maxHealth();
-			}
-			if(dark.get(i).getHp() != maxHealth && dark.get(i).getHp() != 0)
-				injuredNotDead = true;
-		}
-		return injuredNotDead;
-	}
+
 	
 	/**
 	 * This method will check user input within a certain range. It primarily is used to check input for a menu with a limited

@@ -89,5 +89,22 @@ public class Teams {
 		}
 		return victory;
 	}
+	
+	/**
+	 * This method will check to see if there is at least one person on the enemy team that is healable and that
+	 * is injured, but no dead.
+	 * @param enemyTeam - enemy team
+	 * @return true if there is someone that is injured but not dead, false if otherwise
+	 */
+	public static boolean injuredEnemies(Entity[] enemyTeam){
+		boolean injuredNotDead = false;
+		if(enemyTeam[0].getHp() != 100 && enemyTeam[0].getHp() != 0)
+			injuredNotDead = true;
+		for(int index = 1; index <= 5; index++){
+			if(enemyTeam[index].getHp() != 50 && enemyTeam[index].getHp() != 0)
+				injuredNotDead = true;
+		}
+		return injuredNotDead;
+	}
 
 }
