@@ -209,7 +209,7 @@ public class StarWarsBrawl {
 			 */
 			injuredNotDeadE = Teams.injuredEnemies(enemyTeam);//checks for injured but not dead teammates, if found it returns true
 			enemyChoice = (int)(Math.random()*10+1);//random number
-			if(!enemyTeam.get(0).getActive())//if the sith is dead, the enemy team's only choice will be to heal
+			if(!enemyTeam[0].getActive())//if the sith is dead, the enemy team's only choice will be to heal
 				enemyChoice = 4;
 			
 			/**
@@ -218,7 +218,7 @@ public class StarWarsBrawl {
 			 * - Medical Droid is active / not dead
 			 * - Medical Droid has heals remaining (heal counter != 0)
 			 */
-			if(enemyChoice % 4 == 0 && injuredNotDeadE && enemyTeam.get(6).getActive() && ((MedicalD)enemyTeam.get(6)).getNumTask() != 0){
+			if(enemyChoice % 4 == 0 && injuredNotDeadE && enemyTeam[6].getActive() && ((MedicalD)enemyTeam[6]).getNumTask() != 0){
 				boolean targetAllive, targetHealthy;
 				do{
 					//pc / enemy selects random ally to heal.
