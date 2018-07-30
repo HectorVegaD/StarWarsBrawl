@@ -3,8 +3,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Teams {
-	
-
 	public static void createPlayerTeam(Entity[] playerTeam){
 		Entity jedi = createJedi();
 		playerTeam[0] = jedi;
@@ -30,14 +28,13 @@ public class Teams {
 	 * @return The user's initialized character.
 	 */
 	public static Entity createJedi(){
-		Scanner scan = new Scanner(System.in);
+		Scanner scan2 = new Scanner(System.in);
 		String jediName, colorCrystal;//define user created character.
 		System.out.println("What is the name of your legendary Jedi.");
-		jediName = scan.nextLine();
+		jediName = scan2.nextLine(); //"Viri";
 		System.out.println("What is the color of your lightsaber crystal?");
-		colorCrystal = scan.nextLine();
+		colorCrystal = scan2.nextLine(); //"Blue";
 		String catchPhrase = "I go hard, I GO LUDICROUS SPEED!.";
-		scan.close();
 		return new Jedi(jediName, catchPhrase, colorCrystal, "Lightsaber");
 	}
 	

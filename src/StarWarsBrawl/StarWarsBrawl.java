@@ -64,11 +64,13 @@ public class StarWarsBrawl {
 					+ "the enemy team, and hack the Imperial Command Computer "
 					+ "before your battle-ready Astromech dies!");
 		}
-		Entity[] playerTeam;
-		Entity[] enemyTeam; //enemy team
+		Entity[] playerTeam = new Entity[allyCount];
+		Entity[] enemyTeam = new Entity[enemyCount]; //enemy team
 		
 		Teams.createPlayerTeam(playerTeam); //this creates the teams
 		Teams.createEnemies(enemyTeam);
+		
+		scan = new Scanner(System.in);
 		
 		/**
 		 * Stage 3 - Deathmatch Game Mode Loop.
@@ -231,19 +233,19 @@ public class StarWarsBrawl {
 						maxHealth = 50;
 					
 					// determine if pc choice can be healed.
-					targetAllive = enemyTeam.get(enemyChoice).getActive();
-					targetHealthy = enemyTeam.get(enemyChoice).getHp() == maxHealth;
+					targetAllive = enemyTeam[enemyChoice].getActive();
+					targetHealthy = enemyTeam[enemyChoice].getHp() == maxHealth;
 				}while(!targetAllive || targetHealthy);//repeat if an invalid target is chosen.
 				
-				enemyTeam.get(6).doTask(enemyTeam.get(enemyChoice));
+				enemyTeam[6].doTask(enemyTeam[enemyChoice]);
 			}else{//if the choice to heal didnt activate, the they just attack
-				if(enemyTeam.get(0).getActive()){//[fix] modularize this and make this a return condition.
+				if(enemyTeam[0].getActive()){//[fix] modularize this and make this a return condition.
 					do{
-						npcTarget = (int)(Math.random()*playerTeam.size());
-					}while(!playerTeam.get(npcTarget).getActive());//it will select a valid target
-					enemyTeam.get(0).doTask(playerTeam.get(npcTarget));
+						npcTarget = (int)(Math.random()*playerTeam.length);
+					}while(!playerTeam[npcTarget].getActive());//it will select a valid target
+					enemyTeam[0].doTask(playerTeam[npcTarget]);
 					System.out.println(" ");
-					if(!playerTeam.get(npcTarget).getActive())//lowers the counter of remaining enemies
+					if(!playerTeam[npcTarget].getActive())//lowers the counter of remaining enemies
 						allyCount--;
 					if(allyCount == 0){
 						System.out.println("The Sith Lord and the Imperial Delta Squad are Victorious!");
@@ -257,13 +259,13 @@ public class StarWarsBrawl {
 			 */
 			
 			for(int i = 1; i <= 5; i++){//enemy team attack
-				if(enemyTeam.get(i).getActive() && allyCount != 0){
+				if(enemyTeam[i].getActive() && allyCount != 0){
 					do{
-						npcTarget = (int)(Math.random()*playerTeam.size());
-					}while(!playerTeam.get(npcTarget).getActive());
-					enemyTeam.get(i).doTask(playerTeam.get(npcTarget));
+						npcTarget = (int)(Math.random()*playerTeam.length);
+					}while(!playerTeam[npcTarget].getActive());
+					enemyTeam[i].doTask(playerTeam[npcTarget]);
 					System.out.println(" ");
-					if(!playerTeam.get(npcTarget).getActive())//lowers the counter of remaining enemies
+					if(!playerTeam[npcTarget].getActive())//lowers the counter of remaining enemies
 						allyCount--;
 					if(allyCount == 0){
 						System.out.println("The Sith Lord and the Imperial Delta Squad are Victorious!");
@@ -355,18 +357,18 @@ public class StarWarsBrawl {
 	public static int getValidMenuChoice(Scanner scan, int low, int high){
 		boolean rep = true;
 		int choice = 0;
-		while(rep){
-			if(scan.hasNextInt()){
+		do{
+			try{
 				choice = scan.nextInt();
 				if(choice >= low && choice <= high)
 					rep = false;
 				else
 					System.out.print("Invalid Input -- Please re-enter: ");
-			}else{
-				System.out.print("Invalid Input -- Please re-enter: ");
-				String junk = scan.next();
+			}catch(Exception e){
+				System.out.println("Invalid Input -- Please re-enter: ");
+				
 			}
-		}
+		}while(rep == true);
 		return choice;
 	}
 }
