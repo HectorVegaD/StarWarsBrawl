@@ -28,12 +28,12 @@ public class Teams {
 	 * @return The user's initialized character.
 	 */
 	public static Entity createJedi(){
-		Scanner scan2 = new Scanner(System.in);
+		Scanner scan = IO.getScanner();
 		String jediName, colorCrystal;//define user created character.
 		System.out.println("What is the name of your legendary Jedi.");
-		jediName = scan2.nextLine(); //"Viri";
+		jediName = scan.nextLine(); //"Viri";
 		System.out.println("What is the color of your lightsaber crystal?");
-		colorCrystal = scan2.nextLine(); //"Blue";
+		colorCrystal = scan.nextLine(); //"Blue";
 		String catchPhrase = "I go hard, I GO LUDICROUS SPEED!.";
 		return new Jedi(jediName, catchPhrase, colorCrystal, "Lightsaber");
 	}

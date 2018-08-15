@@ -39,7 +39,7 @@ public class StarWarsBrawl {
 		/**
 		 * Stage 1 - Declare Teams & Necessary variables.
 		 */
-		Scanner scan = new Scanner(System.in);
+		Scanner scan = IO.getScanner();
 		int choice, npcTarget, gameMode, enemyChoice, maxHealth, enemyCount, 
 		allyCount, exitHeal;
 		boolean injuredNotDeadE; //checks for injured, but not dead enemies
